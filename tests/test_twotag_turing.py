@@ -9,7 +9,7 @@ def test_rules():
     r = convert(rules)
     print(r)
     assert len(r) == 16
-    assert r == {'A_Qstart': ['C_Qstart', 'x_Qstart'], 'a_Qstart': ['c_Qstart', 'x_Qstart'], 'B_Qstart': ['S_Qstart'], 'b_Qstart': ['s_Qstart'], 'C_Qstart': ['D1_Qstart', 'D0_Qstart'], 'c_Qstart': ['d1_Qstart', 'd0_Qstart'], 'S_Qstart': ['T1_Qstart', 'T0_Qstart'], 's_Qstart': ['t1_Qstart', 't0_Qstart'], 'D1_Qstart': ['A_Q1_0', 'x_Q1_0'], 'd1_Qstart': ['a_Q1_0', 'x_Q1_0'], 'T1_Qstart': ['B_Q1_0', 'x_Q1_0'], 't1_Qstart': ['b_Q1_0', 'x_Q1_0'], 'D0_Qstart': ['x_Q1_1', 'A_Q1_1', 'x_Q1_1'], 'd0_Qstart': ['a_Q1_1', 'x_Q1_1'], 'T0_Qstart': ['B_Q1_1', 'x_Q1_1'], 't0_Qstart': ['b_Q1_1']}
+    assert r == {'A_Qstart': ['C_Qstart', 'x_Qstart'], 'a_Qstart': ['c_Qstart', 'x_Qstart', 'c_Qstart', 'x_Qstart'], 'B_Qstart': ['S_Qstart'], 'b_Qstart': ['s_Qstart'], 'C_Qstart': ['D1_Qstart', 'D0_Qstart'], 'c_Qstart': ['d1_Qstart', 'd0_Qstart'], 'S_Qstart': ['T1_Qstart', 'T0_Qstart'], 's_Qstart': ['t1_Qstart', 't0_Qstart'], 'D1_Qstart': ['A_Q1_0', 'x_Q1_0'], 'd1_Qstart': ['a_Q1_0', 'x_Q1_0'], 'T1_Qstart': ['B_Q1_0', 'x_Q1_0'], 't1_Qstart': ['b_Q1_0', 'x_Q1_0'], 'D0_Qstart': ['x_Q1_1', 'A_Q1_1', 'x_Q1_1'], 'd0_Qstart': ['a_Q1_1', 'x_Q1_1'], 'T0_Qstart': ['B_Q1_1', 'x_Q1_1'], 't0_Qstart': ['b_Q1_1']}
 
 def test_turing_step():
     rules = {  # state: (write, move, if 0 goto, if 1 goto)
@@ -24,6 +24,7 @@ def test_get_initial_queue():
     }
     assert get_initial_queue("Qstart", [], []) == ['A_Qstart', 'x_Qstart', 'B_Qstart', 'x_Qstart']
     assert get_initial_queue("Qstart", [], [1]) == ['A_Qstart', 'x_Qstart', 'B_Qstart', 'x_Qstart', 'b_Qstart', 'x_Qstart']
+    assert get_initial_queue("Qstart", [1], []) == ['A_Qstart', 'x_Qstart', 'a_Qstart', 'x_Qstart', 'B_Qstart', 'x_Qstart']
 
 def test_run_tag_system():
     rules = {  # state: (write, move, if 0 goto, if 1 goto)
@@ -31,3 +32,25 @@ def test_run_tag_system():
     }
     assert run_tag_system(rules, "Qstart", [], [])[0] == 'A_Q1_0'
     assert run_tag_system(rules, "Qstart", [], [1])[0] == 'A_Q1_1'
+
+    assert run_tag_system(rules, "Qstart", [], []) == ['A_Q1_0', 'x_Q1_0', 'B_Q1_0', 'x_Q1_0']
+    write1_rules = {  # state: (write, move, if 0 goto, if 1 goto)
+       "Qstart": (1, "R", "Q1_0", "Q1_1")
+    }
+    assert run_tag_system(write1_rules, "Qstart", [], []) == ['A_Q1_0', 'x_Q1_0', 'a_Q1_0', 'x_Q1_0', 'B_Q1_0', 'x_Q1_0']
+
+    assert run_tag_system(rules, "Qstart", [1], []) == ['A_Q1_0', 'x_Q1_0', 'a_Q1_0', 'x_Q1_0', 'a_Q1_0', 'x_Q1_0', 'B_Q1_0', 'x_Q1_0']
+
+def test_move_left():
+    rules = {  # state: (write, move, if 0 goto, if 1 goto)
+       "Qstart": (0, "L", "Q1_0", "Q1_1")
+    }
+    assert run_tag_system(rules, "Qstart", [], []) == ['A_Q1_0', 'x_Q1_0', 'B_Q1_0', 'x_Q1_0']
+    assert run_tag_system(rules, "Qstart", [], [1]) == ['A_Q1_0', 'x_Q1_0', 'B_Q1_0', 'x_Q1_0', 'b_Q1_0', 'x_Q1_0', 'b_Q1_0', 'x_Q1_0']
+
+def test_move_left2():
+    rules = {  # state: (write, move, if 0 goto, if 1 goto)
+       "Q0": (1, "L", "Q1", "Q2")
+    }
+    assert run_tag_system(rules, "Q0", [], []) == ['A_Q1', 'x_Q1', 'B_Q1', 'x_Q1', 'b_Q1', 'x_Q1']
+    assert run_tag_system(rules, "Q0", [], [1]) == ['A_Q1', 'x_Q1', 'B_Q1', 'x_Q1', 'b_Q1', 'x_Q1', 'b_Q1', 'x_Q1', 'b_Q1', 'x_Q1']

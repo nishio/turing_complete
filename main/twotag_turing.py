@@ -15,32 +15,60 @@ def convert(turing_rules):
     tag_rules = {}
     for state in turing_rules:
         write, move, if0, if1 = turing_rules[state]
-        if move == "L":
-            raise NotImplemented
-
-        def add_rule(key, value, new_state=state):
+        def add_rule(key, value, new_state=state, state=state):
             tag_rules[f"{key}_{state}"] = [f"{v}_{new_state}" for v in value.split()]
 
-        if write:
-            add_rule("A", "C x c x")
-        else:
-            add_rule("A", "C x")
+        if move == "R":
+            if write:
+                add_rule("A", "C x c x")
+            else:
+                add_rule("A", "C x")
+            add_rule("a", "c x c x")
+            add_rule("B", "S")
+            add_rule("b", "s")
+            add_rule("C", "D1 D0")
+            add_rule("c", "d1 d0")
+            add_rule("S", "T1 T0")
+            add_rule("s", "t1 t0")
+            add_rule("D1", "A x", new_state=if1)
+            add_rule("d1", "a x", new_state=if1)
+            add_rule("T1", "B x", new_state=if1)
+            add_rule("t1", "b x", new_state=if1)
+            add_rule("D0", "x A x", new_state=if0)
+            add_rule("d0", "a x", new_state=if0)
+            add_rule("T0", "B x", new_state=if0)
+            add_rule("t0", "b", new_state=if0)
+        elif move == "L":  # incorrect impl.
+            add_rule("A", "A' x")
+            add_rule("a", "a' x")
+            if write:
+                add_rule("B", "S x s x")
+            else:
+                add_rule("B", "S x")
+            add_rule("b", "s x s x")
+            add_rule("A'", "C")
+            add_rule("a'", "c")
 
-        add_rule("a", "c x")
-        add_rule("B", "S")
-        add_rule("b", "s")
-        add_rule("C", "D1 D0")
-        add_rule("c", "d1 d0")
-        add_rule("S", "T1 T0")
-        add_rule("s", "t1 t0")
-        add_rule("D1", "A x", new_state=if1)
-        add_rule("d1", "a x", new_state=if1)
-        add_rule("T1", "B x", new_state=if1)
-        add_rule("t1", "b x", new_state=if1)
-        add_rule("D0", "x A x", new_state=if0)
-        add_rule("d0", "a x", new_state=if0)
-        add_rule("T0", "B x", new_state=if0)
-        add_rule("t0", "b", new_state=if0)
+            add_rule("C", "D1 D0")
+            add_rule("c", "d1 d0")
+            add_rule("S", "T1 T0")
+            add_rule("s", "t1 t0")
+            add_rule("D1", "A x", new_state=if1)
+            add_rule("d1", "a x", new_state=if1)
+            add_rule("T1", "B' x", new_state=if1)
+            add_rule("t1", "b' x", new_state=if1)
+            add_rule("D0", "A x", new_state=if0)
+            add_rule("d0", "a", new_state=if0)
+            add_rule("T0", "x B' x", new_state=if0)
+            add_rule("t0", "b' x", new_state=if0)
+            add_rule("B'", "B x", state=if0, new_state=if0)
+            add_rule("b'", "b x", state=if0, new_state=if0)
+            add_rule("B'", "B x", state=if1, new_state=if1)
+            add_rule("b'", "b x", state=if1, new_state=if1)
+
+        else:
+            raise TypeError(f"{move=}")
+
     return tag_rules
 
 
