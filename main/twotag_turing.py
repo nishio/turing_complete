@@ -1,48 +1,16 @@
 """
-2-Tag System and Turing Machine
+2-Tag System and 2-Symbol Turing Machine
+
 Cocke, J., and Minsky, M.: "Universality of Tag Systems with P=2", J. Assoc. Comput. Mach. 11, 15–20, 1964.
 [PDF https://dspace.mit.edu/bitstream/handle/1721.1/6107/AIM-052.pdf?sequence=2]
 
+2-Symbol Turing Machine
+  State: string starts with "Q"
 
-
-State: string starts with "Q"
-
-Tag System
-Character: string
-
+2-Tag System
+  Character: string "{type}_{state}"
+  Queue: list of string
 """
-
-
-turing_rules = {  # state: (write, move, if 0 goto, if 1 goto)
-    "Qstart": (0, "R", "Q1_1", "Q1_0")
-}
-
-def turing_step(rules, state, left_tape, right_tape):
-    write, move, if0, if1 = rules[state]
-    if move == "R":
-        left_tape.append(write)
-        if right_tape:
-            read = right_tape[0]
-            right_tape = right_tape[1:]
-        else:
-            read = 0
-            right_tape = []
-
-    else:
-        right_tape.insert(0, write)
-        if left_tape:
-            read = left_tape[-1]
-            left_tape = left_tape[:-1]
-        else:
-            read = 0
-            left_tape = []
-    if read:
-        new_state = if1
-    else:
-        new_state = if0
-    return new_state, left_tape, right_tape
-
-
 def convert(turing_rules):
     tag_rules = {}
     for state in turing_rules:
@@ -74,6 +42,37 @@ def convert(turing_rules):
         add_rule("T0", "B x", new_state=if0)
         add_rule("t0", "b", new_state=if0)
     return tag_rules
+
+
+turing_rules = {  # state: (write, move, if 0 goto, if 1 goto)
+    "Qstart": (0, "R", "Q1_1", "Q1_0")
+}
+
+def turing_step(rules, state, left_tape, right_tape):
+    write, move, if0, if1 = rules[state]
+    if move == "R":
+        left_tape.append(write)
+        if right_tape:
+            read = right_tape[0]
+            right_tape = right_tape[1:]
+        else:
+            read = 0
+            right_tape = []
+
+    else:
+        right_tape.insert(0, write)
+        if left_tape:
+            read = left_tape[-1]
+            left_tape = left_tape[:-1]
+        else:
+            read = 0
+            left_tape = []
+    if read:
+        new_state = if1
+    else:
+        new_state = if0
+    return new_state, left_tape, right_tape
+
 
 def run_tag_system(turing_rules, initial_state, left_tape, right_tape):
     tag_rules = convert(turing_rules)
